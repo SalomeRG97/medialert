@@ -2,7 +2,7 @@
 
 Este desafío consiste en implementar un flujo simple de **recuperación y cambio de contraseña** usando un entorno **totalmente autocontenido con Docker**.
 
-El objetivo es que todo el sistema (backend, frontend, base de datos y servidor de correo local) funcione con un solo comando.
+Queremos ver cómo organizás el código, los commits y cómo hacés que todo el sistema (backend, frontend, base de datos y servidor de correo local) funcione de punta a punta.
 
 ---
 
@@ -19,6 +19,15 @@ El flujo básico es el siguiente:
 
 > No es necesario implementar validaciones de seguridad avanzadas ni autenticación real.  
 > Lo importante es que el flujo completo funcione y sea fácil de levantar.
+
+---
+
+## 🧠 Qué queremos evaluar
+
+- Que el repositorio sea autocontenido (sin pasos manuales raros).
+- Que entiendas cómo conectar un frontend y un backend.
+- Que sepas manejar commits claros y un README útil.
+- Que el código sea limpio y fácil de seguir.
 
 ---
 
