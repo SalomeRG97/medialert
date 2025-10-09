@@ -64,3 +64,5 @@ Todo debe funcionar con el comando:
 
 ```bash
 docker compose up --build
+```
+
