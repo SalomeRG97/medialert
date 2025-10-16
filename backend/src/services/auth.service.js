@@ -12,12 +12,18 @@ import bcrypt from "bcrypt";
 
 export const forgotPassword = async (email) => {
   const user = await findByEmail(email);
-  if (!user) throw new Error("Usuario no encontrado.");
 
-  const token = crypto.randomBytes(32).toString("hex");
-  const expires = Date.now() + 3600000;
-  await saveResetToken(email, token, expires);
-  await sendResetEmail(email, token);
+  if (user) {
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = Date.now() + 3600000;
+    await saveResetToken(email, token, expires);
+    await sendResetEmail(email, token);
+  }
+
+  return {
+    message:
+      "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.",
+  };
 };
 
 export const resetPassword = async (token, newPassword) => {

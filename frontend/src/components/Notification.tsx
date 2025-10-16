@@ -1,24 +1,46 @@
-import React from "react";
-import { Alert, Collapse } from "@mui/material";
+import { useEffect } from "react";
+import { Alert, Collapse, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface NotificationProps {
-  message: string | null;
-  type?: "success" | "error";
-  onClose?: () => void;
+  message: string;
+  type: "success" | "error";
+  onClose: () => void;
+  duration?: number;
 }
 
 const Notification: React.FC<NotificationProps> = ({
   message,
-  type = "error",
+  type,
   onClose,
+  duration = 5000,
 }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
   return (
-    <Collapse in={!!message}>
-      {message && (
-        <Alert severity={type} onClose={onClose} sx={{ mb: 2 }}>
-          {message}
-        </Alert>
-      )}
+    <Collapse in={true}>
+      <Alert
+        severity={type}
+        action={
+          <IconButton
+            aria-label="close"
+            color="inherit"
+            size="small"
+            onClick={onClose}
+          >
+            <CloseIcon fontSize="inherit" />
+          </IconButton>
+        }
+        sx={{ mb: 2 }}
+      >
+        {message}
+      </Alert>
     </Collapse>
   );
 };

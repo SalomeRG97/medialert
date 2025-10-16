@@ -1,13 +1,8 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  Alert,
-} from "@mui/material";
+import { useState } from "react";
+import { Box, Button, TextField, Typography, Paper } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Notification from "../components/Notification";
+import { authService } from "../authService";
 
 const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,37 +12,54 @@ const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
+    setNotification(null);
 
     if (!password || !confirmPassword) {
-      setError("Por favor completa ambos campos.");
+      setNotification({
+        message: "Por favor completa ambos campos.",
+        type: "error",
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setNotification({
+        message: "Las contraseñas no coinciden.",
+        type: "error",
+      });
       return;
     }
 
     if (!token) {
-      setError("Token inválido o faltante.");
+      setNotification({ message: "Token inválido o faltante.", type: "error" });
       return;
     }
 
     setLoading(true);
 
-    // Simulación de envío al backend
-    setTimeout(() => {
-      setLoading(false);
-      setMessage("Contraseña restablecida con éxito. Redirigiendo...");
+    try {
+      const data = await authService.resetPassword({
+        token,
+        newPassword: password,
+      });
+      setNotification({ message: data.message, type: "success" });
+
       setTimeout(() => navigate("/login"), 2000);
-    }, 1500);
+    } catch (err: unknown) {
+      setNotification({
+        message: err instanceof Error ? err.message : "Ocurrió un error",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,6 +92,15 @@ const ResetPasswordPage: React.FC = () => {
           Restablecer contraseña
         </Typography>
 
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+            duration={5000}
+          />
+        )}
+
         <form
           onSubmit={handleSubmit}
           style={{
@@ -104,21 +125,11 @@ const ResetPasswordPage: React.FC = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          {error && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {error}
-            </Alert>
-          )}
-          {message && (
-            <Alert severity="success" sx={{ mt: 1 }}>
-              {message}
-            </Alert>
-          )}
-
           <Button
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading}
             sx={{
               mt: 1,
               backgroundColor: "#16222a",
@@ -126,7 +137,6 @@ const ResetPasswordPage: React.FC = () => {
               py: 1.4,
               fontWeight: "bold",
             }}
-            disabled={loading}
           >
             {loading ? "Enviando..." : "Guardar nueva contraseña"}
           </Button>

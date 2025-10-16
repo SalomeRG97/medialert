@@ -20,9 +20,11 @@ const LoginPage = () => {
 
     try {
       const data = await authService.login({ email, password });
+      console.log(data);
+
       localStorage.setItem("token", data.token);
 
-      setNotification({ message: "Inicio de sesión exitoso", type: "success" });
+      setNotification({ message: data.message, type: "success" });
       // navigate("/dashboard");
     } catch (err: unknown) {
       if (err instanceof Error) {

@@ -6,7 +6,7 @@ export const forgotPassword = async (req, res) => {
     await authService.forgotPassword(email);
     res.status(200).json({
       message:
-        "Se ha enviado un correo con el link para recuperar tu contraseña",
+        "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.",
     });
   } catch (err) {
     res.status(400).json({ error: err.message });

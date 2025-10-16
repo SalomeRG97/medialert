@@ -5,34 +5,45 @@ import {
   TextField,
   Typography,
   Paper,
-  Alert,
   CircularProgress,
   Link,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { authService } from "../authService";
+import Notification from "../components/Notification";
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
+    setNotification(null);
     setLoading(true);
 
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-
-      setMessage(
-        "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña."
-      );
-    } catch (err) {
-      setError(
-        "Ocurrió un error al procesar la solicitud. Intenta nuevamente."
-      );
+      // Llamada al backend
+      const data = await authService.forgotPassword({ email });
+      setNotification({
+        message:
+          data.message ||
+          "Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.",
+        type: "success",
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setNotification({ message: err.message, type: "error" });
+      } else {
+        setNotification({
+          message:
+            "Ocurrió un error al procesar la solicitud. Intenta nuevamente.",
+          type: "error",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -75,6 +86,14 @@ function ForgotPasswordPage() {
           restablecer tu contraseña.
         </Typography>
 
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
+
         <form
           onSubmit={handleSubmit}
           style={{
@@ -112,17 +131,6 @@ function ForgotPasswordPage() {
             )}
           </Button>
         </form>
-
-        {message && (
-          <Alert severity="success" sx={{ mt: 3, width: "100%" }}>
-            {message}
-          </Alert>
-        )}
-        {error && (
-          <Alert severity="error" sx={{ mt: 3, width: "100%" }}>
-            {error}
-          </Alert>
-        )}
 
         <Typography variant="body2" sx={{ mt: 3 }}>
           <Link

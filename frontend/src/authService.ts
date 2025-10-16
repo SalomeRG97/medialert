@@ -3,7 +3,24 @@ interface Data {
   password: string;
 }
 
-const API_URL = "http://localhost:4000/routes"; // Ajusta según tu backend
+interface ForgotPasswordData {
+  email: string;
+}
+
+interface ResetPasswordData {
+  token: string;
+  newPassword: string;
+}
+
+const API_URL = "http://localhost:4000/api/auth"; // Ajusta según tu backend
+
+async function handleResponse(response: Response) {
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Ocurrió un error");
+  }
+  return data;
+}
 
 export const authService = {
   login: async (data: Data) => {
@@ -12,13 +29,7 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al iniciar sesión");
-    }
-
-    return await response.json(); // normalmente devuelve { token, user, ... }
+    return handleResponse(response);
   },
 
   register: async (data: Data) => {
@@ -27,17 +38,24 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al registrarse");
-    }
-
-    return await response.json();
+    return handleResponse(response);
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
-    // aquí podrías limpiar también el estado global o contexto si lo usas
+  forgotPassword: async (data: ForgotPasswordData) => {
+    const response = await fetch(`${API_URL}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  resetPassword: async (data: ResetPasswordData) => {
+    const response = await fetch(`${API_URL}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
   },
 };
