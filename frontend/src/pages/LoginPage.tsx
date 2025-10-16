@@ -1,15 +1,43 @@
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Paper, Link } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { authService } from "../authService.js";
+import Notification from "../components/Notification.js"; // Ajusta la ruta
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password });
+    setNotification(null);
+    setLoading(true);
+
+    try {
+      const data = await authService.login({ email, password });
+      localStorage.setItem("token", data.token);
+
+      setNotification({ message: "Inicio de sesión exitoso", type: "success" });
+      // navigate("/dashboard");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setNotification({ message: err.message, type: "error" });
+      } else {
+        setNotification({
+          message: "Ocurrió un error inesperado",
+          type: "error",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <Box
       sx={{
@@ -42,6 +70,14 @@ const LoginPage = () => {
         >
           Iniciar Sesión
         </Typography>
+
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -90,7 +126,7 @@ const LoginPage = () => {
               fontWeight: "bold",
             }}
           >
-            Entrar
+            {loading ? "Cargando..." : "Entrar"}
           </Button>
         </form>
 

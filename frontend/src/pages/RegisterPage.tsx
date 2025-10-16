@@ -1,21 +1,19 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  Link,
-  Alert,
-} from "@mui/material";
+import { Box, Button, TextField, Typography, Paper, Link } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { authService } from "../authService";
+import Notification from "../components/Notification";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
@@ -23,34 +21,66 @@ const RegisterPage = () => {
     return regex.test(email);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setNotification(null);
+    setLoading(true);
 
     if (!email || !password || !confirmPassword) {
-      setError("Todos los campos son obligatorios");
+      setNotification({
+        message: "Todos los campos son obligatorios",
+        type: "error",
+      });
+      setLoading(false);
       return;
     }
 
     if (!validateEmail(email)) {
-      setError("El correo no tiene un formato válido");
+      setNotification({
+        message: "El correo no tiene un formato válido",
+        type: "error",
+      });
+      setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
+      setNotification({
+        message: "La contraseña debe tener al menos 6 caracteres",
+        type: "error",
+      });
+      setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setNotification({
+        message: "Las contraseñas no coinciden",
+        type: "error",
+      });
+      setLoading(false);
       return;
     }
 
-    // Simulación de éxito
-    setSuccess("Cuenta creada con éxito. Redirigiendo al inicio de sesión...");
-    setTimeout(() => navigate("/login"), 2000);
+    try {
+      await authService.register({ email, password });
+      setNotification({
+        message: "Cuenta creada con éxito. Redirigiendo al inicio de sesión...",
+        type: "success",
+      });
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setNotification({ message: err.message, type: "error" });
+      } else {
+        setNotification({
+          message: "Ocurrió un error inesperado",
+          type: "error",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,14 +107,18 @@ const RegisterPage = () => {
       >
         <Typography
           variant="h4"
-          sx={{
-            mb: 4,
-            fontWeight: "bold",
-            color: "#16222a",
-          }}
+          sx={{ mb: 4, fontWeight: "bold", color: "#16222a" }}
         >
           Crear cuenta
         </Typography>
+
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -117,21 +151,11 @@ const RegisterPage = () => {
             fullWidth
           />
 
-          {error && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mt: 1 }}>
-              {success}
-            </Alert>
-          )}
-
           <Button
             type="submit"
             variant="contained"
             fullWidth
+            disabled={loading}
             sx={{
               mt: 1,
               backgroundColor: "#16222a",
@@ -140,7 +164,7 @@ const RegisterPage = () => {
               fontWeight: "bold",
             }}
           >
-            Registrarse
+            {loading ? "Cargando..." : "Registrarse"}
           </Button>
         </form>
 

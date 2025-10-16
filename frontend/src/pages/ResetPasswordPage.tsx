@@ -4,8 +4,7 @@ import {
   Button,
   TextField,
   Typography,
-  Card,
-  CardContent,
+  Paper,
   Alert,
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -43,7 +42,12 @@ const ResetPasswordPage: React.FC = () => {
 
     setLoading(true);
 
-    setTimeout(() => navigate("/login"), 2000);
+    // Simulación de envío al backend
+    setTimeout(() => {
+      setLoading(false);
+      setMessage("Contraseña restablecida con éxito. Redirigiendo...");
+      setTimeout(() => navigate("/login"), 2000);
+    }, 1500);
   };
 
   return (
@@ -55,68 +59,79 @@ const ResetPasswordPage: React.FC = () => {
         alignItems: "center",
       }}
     >
-      <Card sx={{ width: 380, p: 2, borderRadius: 3, boxShadow: 5 }}>
-        <CardContent>
-          <Typography variant="h5" align="center" gutterBottom>
-            Restablecer contraseña
-          </Typography>
+      <Paper
+        elevation={8}
+        sx={{
+          p: 6,
+          borderRadius: 4,
+          width: { xs: 320, sm: 420 },
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          backgroundColor: "rgba(255, 255, 255, 0.92)",
+          backdropFilter: "blur(6px)",
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ mb: 4, fontWeight: "bold", color: "#16222a" }}
+        >
+          Restablecer contraseña
+        </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ mb: 2 }}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
+          }}
+        >
+          <TextField
+            fullWidth
+            label="Nueva contraseña"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            label="Confirmar contraseña"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          {error && (
+            <Alert severity="error" sx={{ mt: 1 }}>
+              {error}
+            </Alert>
+          )}
+          {message && (
+            <Alert severity="success" sx={{ mt: 1 }}>
+              {message}
+            </Alert>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 1,
+              backgroundColor: "#16222a",
+              "&:hover": { backgroundColor: "#1e2d36" },
+              py: 1.4,
+              fontWeight: "bold",
+            }}
+            disabled={loading}
           >
-            Ingresa tu nueva contraseña y confírmala.
-          </Typography>
-
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Nueva contraseña"
-              type="password"
-              variant="outlined"
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <TextField
-              fullWidth
-              label="Confirmar contraseña"
-              type="password"
-              variant="outlined"
-              margin="normal"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-
-            {message && (
-              <Alert severity="success" sx={{ mt: 2 }}>
-                {message}
-              </Alert>
-            )}
-            {error && (
-              <Alert severity="error" sx={{ mt: 2 }}>
-                {error}
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 3 }}
-              disabled={loading}
-            >
-              {loading ? "Enviando..." : "Guardar nueva contraseña"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            {loading ? "Enviando..." : "Guardar nueva contraseña"}
+          </Button>
+        </form>
+      </Paper>
     </Box>
   );
 };
