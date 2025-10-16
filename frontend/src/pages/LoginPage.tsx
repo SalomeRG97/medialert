@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Paper, Link } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { authService } from "../authService.js";
-import Notification from "../components/Notification.js"; // Ajusta la ruta
+import Notification from "../components/Notification.js";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -22,10 +22,7 @@ const LoginPage = () => {
       const data = await authService.login({ email, password });
       console.log(data);
 
-      localStorage.setItem("token", data.token);
-
       setNotification({ message: data.message, type: "success" });
-      // navigate("/dashboard");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setNotification({ message: err.message, type: "error" });

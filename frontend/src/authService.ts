@@ -12,7 +12,7 @@ interface ResetPasswordData {
   newPassword: string;
 }
 
-const API_URL = "http://localhost:4000/api/auth"; // Ajusta según tu backend
+const API_URL = "http://localhost:4000/api";
 
 async function handleResponse(response: Response) {
   const data = await response.json();

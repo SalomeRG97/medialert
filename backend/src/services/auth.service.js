@@ -43,7 +43,7 @@ export const login = async (email, password) => {
   if (!match) throw new Error("Correo o contraseña inválidos.");
 
   return {
-    message: "Login exitoso",
+    message: "Login exitoso.",
   };
 };
 
@@ -57,6 +57,6 @@ export const register = async (email, password) => {
   await createUser(email, hashedPassword);
 
   return {
-    message: "Usuario registrado exitosamente",
+    message: "Usuario registrado exitosamente.",
   };
 };

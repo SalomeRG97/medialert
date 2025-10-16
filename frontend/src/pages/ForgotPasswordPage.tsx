@@ -26,7 +26,6 @@ function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      // Llamada al backend
       const data = await authService.forgotPassword({ email });
       setNotification({
         message:
