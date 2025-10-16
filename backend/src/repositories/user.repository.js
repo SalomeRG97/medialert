@@ -34,3 +34,10 @@ export const findByValidToken = async (token) => {
     },
   });
 };
+
+export const createUser = async (email, password) => {
+  return await User.create({
+    email,
+    password,
+  });
+};

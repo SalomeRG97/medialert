@@ -3,6 +3,7 @@ import {
   findByValidToken,
   saveResetToken,
   updatePassword,
+  createUser,
 } from "../repositories/user.repository.js";
 
 import { sendResetEmail } from "../utils/mailer.js";
@@ -26,4 +27,30 @@ export const resetPassword = async (token, newPassword) => {
   const hashed = await bcrypt.hash(newPassword, 10);
   await updatePassword(user.email, hashed);
   await saveResetToken(user.email, null);
+};
+
+export const login = async (email, password) => {
+  const user = await findByEmail(email);
+  if (!user) throw new Error("Correo o contraseña inválidos.");
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) throw new Error("Correo o contraseña inválidos.");
+
+  return {
+    message: "Login exitoso",
+  };
+};
+
+export const register = async (email, password) => {
+  const user = await findByEmail(email);
+  if (user) throw new Error("El usuario ya existe.");
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  await createUser(email, hashedPassword);
+
+  return {
+    message: "Usuario registrado exitosamente",
+  };
 };
