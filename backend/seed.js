@@ -9,7 +9,7 @@ export const seedDatabase = async () => {
     if (!existing) {
       await User.create({
         email: "admin@tech.com",
-        password: "987654",
+        password: "123456789",
       });
       console.log("🌱 Usuario admin creado");
     } else {
