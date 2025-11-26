@@ -19,9 +19,6 @@ jobs:
         with:
           node-version: '20'
 
-      # ============================
-      # CREAR .ENV DEL BACKEND
-      # ============================
       - name: Crear archivo .env para backend
         run: |
           echo "PORT=4000" >> ./backend/.env
@@ -33,43 +30,25 @@ jobs:
           echo "MAIL_PORT=${{ secrets.BACKEND_MAIL_PORT }}" >> ./backend/.env
           echo "FRONTEND_URL=${{ secrets.BACKEND_FRONTEND_URL }}" >> ./backend/.env
 
-      # ============================
-      # CREAR .ENV DEL FRONTEND
-      # ============================
       - name: Crear archivo .env para frontend
         run: |
           echo "VITE_BACKEND_URL=${{ secrets.FRONTEND_BACKEND_URL }}" >> ./frontend/.env
 
-      # ============================
-      # INSTALAR DEPENDENCIAS BACKEND
-      # ============================
       - name: Instalar dependencias backend
         working-directory: ./backend
         run: npm install
 
-      # ============================
-      # LINTER
-      # ============================
       - name: Validar sintaxis backend
         working-directory: ./backend
         run: npm run lint || echo "Sin linter configurado"
 
-      # ============================
-      # DOCKER COMPOSE BUILD
-      # ============================
       - name: Construir contenedores Docker
         run: docker compose build
 
-      # ============================
-      # DOCKER COMPOSE UP
-      # ============================
       - name: Levantar servicios y verificar estado
         run: docker compose up -d
 
-      # ============================
-      # HEALTH CHECK DEL BACKEND
-      # ============================
       - name: Probar que el backend responde (health check)
         run: |
-          sleep 8
+          sleep 20
           curl --fail http://localhost:4000 || exit 1
