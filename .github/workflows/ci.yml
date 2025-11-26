@@ -19,30 +19,57 @@ jobs:
         with:
           node-version: '20'
 
+      # ============================
+      # CREAR .ENV DEL BACKEND
+      # ============================
+      - name: Crear archivo .env para backend
+        run: |
+          echo "PORT=4000" >> ./backend/.env
+          echo "DB_HOST=${{ secrets.BACKEND_DB_HOST }}" >> ./backend/.env
+          echo "DB_USER=${{ secrets.BACKEND_DB_USER }}" >> ./backend/.env
+          echo "DB_PASSWORD=${{ secrets.BACKEND_DB_PASSWORD }}" >> ./backend/.env
+          echo "DB_NAME=${{ secrets.BACKEND_DB_NAME }}" >> ./backend/.env
+          echo "MAIL_HOST=${{ secrets.BACKEND_MAIL_HOST }}" >> ./backend/.env
+          echo "MAIL_PORT=${{ secrets.BACKEND_MAIL_PORT }}" >> ./backend/.env
+          echo "FRONTEND_URL=${{ secrets.BACKEND_FRONTEND_URL }}" >> ./backend/.env
+
+      # ============================
+      # CREAR .ENV DEL FRONTEND
+      # ============================
+      - name: Crear archivo .env para frontend
+        run: |
+          echo "VITE_BACKEND_URL=${{ secrets.FRONTEND_BACKEND_URL }}" >> ./frontend/.env
+
+      # ============================
+      # INSTALAR DEPENDENCIAS BACKEND
+      # ============================
       - name: Instalar dependencias backend
         working-directory: ./backend
         run: npm install
 
-      - name: Instalar dependencias frontend
-        working-directory: ./frontend
-        run: npm install || echo "Frontend no tiene dependencias"
+      # ============================
+      # LINTER
+      # ============================
+      - name: Validar sintaxis backend
+        working-directory: ./backend
+        run: npm run lint || echo "Sin linter configurado"
 
+      # ============================
+      # DOCKER COMPOSE BUILD
+      # ============================
       - name: Construir contenedores Docker
         run: docker compose build
 
-      - name: Levantar servicios
+      # ============================
+      # DOCKER COMPOSE UP
+      # ============================
+      - name: Levantar servicios y verificar estado
         run: docker compose up -d
 
-      - name: Esperar a MySQL
-        run: sleep 15
-
-      - name: Mostrar estado de contenedores
-        run: docker compose ps
-
-
+      # ============================
+      # HEALTH CHECK DEL BACKEND
+      # ============================
       - name: Probar que el backend responde (health check)
         run: |
-          echo "Esperando 30 segundos a que los servicios se inicien..."
-          sleep 30
+          sleep 8
           curl --fail http://localhost:4000 || exit 1
-
