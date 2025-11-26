@@ -36,7 +36,13 @@ jobs:
       - name: Esperar a MySQL
         run: sleep 15
 
-      - name: Probar backend desde dentro del contenedor
+      - name: Mostrar estado de contenedores
+        run: docker compose ps
+
+
+      - name: Probar que el backend responde (health check)
         run: |
-          docker exec $(docker ps -qf "name=backend") \
-            curl --fail http://localhost:4000 || exit 1
+          echo "Esperando 30 segundos a que los servicios se inicien..."
+          sleep 30
+          curl --fail http://localhost:4000 || exit 1
+
