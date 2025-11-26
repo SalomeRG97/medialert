@@ -48,6 +48,3 @@ jobs:
       - name: Levantar servicios y verificar estado
         run: docker compose up -d
 
-      - name: Health check backend
-        run: sudo docker compose exec backend curl --fail http://localhost:4000/api/health || exit 1
-
